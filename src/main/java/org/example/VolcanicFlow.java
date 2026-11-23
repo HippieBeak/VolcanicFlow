@@ -73,7 +73,7 @@ public class VolcanicFlow extends LavaAbility implements AddonAbility {
     public VolcanicFlow(Player player) {
         super(player);
 
-        if (!bPlayer.canBendIgnoreBinds(this)) return;
+        if (bPlayer == null || !bPlayer.canBendIgnoreBinds(this)) return;
 
         cooldown = ConfigManager.getConfig().getLong("ExtraAbilities.Vincentcf.VolcanicFlow.Cooldown");
         range = ConfigManager.getConfig().getInt("ExtraAbilities.Vincentcf.VolcanicFlow.Range");
@@ -104,7 +104,7 @@ public class VolcanicFlow extends LavaAbility implements AddonAbility {
     @Override
     public void progress() {
 
-        if (!bPlayer.canBend(this)) {
+        if (bPlayer == null || !bPlayer.canBend(this)) {
             remove();
             return;
         }

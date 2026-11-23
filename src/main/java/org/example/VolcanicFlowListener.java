@@ -44,12 +44,13 @@ public class VolcanicFlowListener implements Listener {
     @EventHandler
     public void whileSneaking(PlayerToggleSneakEvent event) {
         Player player = event.getPlayer();
-        if (!event.isSneaking()) return;
+        if (!event.isSneaking() || player.hasMetadata("NPC")) return;
 
         BendingPlayer bPlayer = BendingPlayer.getBendingPlayer(player);
+        if (bPlayer == null) return;
 
         String abil = bPlayer.getBoundAbilityName();
-        if (abil.equalsIgnoreCase("VolcanicFlow")) {
+        if ("VolcanicFlow".equalsIgnoreCase(abil)) {
             new VolcanicFlow(player);
         }
     }
@@ -58,6 +59,7 @@ public class VolcanicFlowListener implements Listener {
     public void onEntityBlockDamage(EntityDamageByBlockEvent event) {
 
         Block block = event.getDamager();
+        if (block == null) return;
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
         boolean shouldCancel = ConfigManager.getConfig().getBoolean("ExtraAbilities.Vincentcf.VolcanicFlow.cancelLavaWaveDamage");
@@ -83,6 +85,7 @@ public class VolcanicFlowListener implements Listener {
     @EventHandler
     public void fireTickCheck(EntityDamageByBlockEvent event) {
         Block block = event.getDamager();
+        if (block == null) return;
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
 
