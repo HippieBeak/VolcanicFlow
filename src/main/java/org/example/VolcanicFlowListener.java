@@ -30,8 +30,16 @@ import java.util.*;
 
 public class VolcanicFlowListener implements Listener {
     private static HashMap<Entity, BukkitTask> activeRunnableInstances = new HashMap<Entity, BukkitTask>();
-    private Set<Entity> entitiesOnFire = new HashSet<Entity>();
-    private int fireTick = ConfigManager.getConfig().getInt("ExtraAbilities.Vincentcf.VolcanicFlow.FireTick");
+
+    /** Cancels and clears all pending fire-tick reset tasks. */
+    public static void cleanup() {
+        for (BukkitTask task : activeRunnableInstances.values()) {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+        activeRunnableInstances.clear();
+    }
 
     @EventHandler
     public void whileSneaking(PlayerToggleSneakEvent event) {
@@ -80,10 +88,12 @@ public class VolcanicFlowListener implements Listener {
 
         if (block.hasMetadata(VolcanicFlow.METADATA_KEY_LAVABLOCK)) {
 
-            if (activeRunnableInstances.get(player) != null) {
-                activeRunnableInstances.get(player).cancel();
+            BukkitTask existingTask = activeRunnableInstances.get(player);
+            if (existingTask != null) {
+                existingTask.cancel();
             }
 
+            int fireTick = ConfigManager.getConfig().getInt("ExtraAbilities.Vincentcf.VolcanicFlow.FireTick");
             if (fireTick < 10) {
                 fireTick = 10;
             }
@@ -92,6 +102,10 @@ public class VolcanicFlowListener implements Listener {
                 @Override
                 public void run() {
                     player.setFireTicks(0);
+                    BukkitTask current = activeRunnableInstances.get(player);
+                    if (current != null && current.getTaskId() == getTaskId()) {
+                        activeRunnableInstances.remove(player);
+                    }
                 }
             }.runTaskLater(ProjectKorra.plugin, fireTick);
             activeRunnableInstances.put(player, bukkitRunnable);
